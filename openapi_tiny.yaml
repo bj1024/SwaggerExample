@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: Swaggerで作成したAPIサンプル
+  version: "0.1"
+  description: >-
+    Swaggerで作成したAPIサンプルです。
+
+  license:
+    name: MIT
+servers:
+  - url: /api/v1
+
+paths:
+  /myitem:
+    put:
+      tags:
+        - myitem
+      summary: 既存のmyitemを更新する。
+      description: 既存のmyitemを更新する。（Id指定）
+      operationId: updatemyitem
+      requestBody:
+        description: Update an existent myitem.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseMyitem'
+
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: myitem not found
+        '405':
+          description: Validation exception
+
+    post:
+      tags:
+        - myitem
+      summary:  myitem を新規追加する。
+      description: myitem を新規追加する。
+      operationId: addmyitem
+      requestBody:
+        description: Create a new myitem.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/myitem'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseMyitem'
+        '405':
+          description: Invalid input
+
+
+  /myitem/{myitemId}:
+    get:
+      tags:
+        - myitem
+      summary: myitem を IDで取得する。
+      description: myitem を IDで取得する。（単数）
+      operationId: getmyitemById
+      parameters:
+        - name: myitemId
+          in: path
+          description: ID of myitem to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseMyitems'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: myitem not found
+
+    post:
+      tags:
+        - myitem
+      summary: 既存のmyitemを更新する。(フォームから更新する場合)
+      description: ''
+      operationId: updatemyitemWithForm
+      parameters:
+        - name: myitemId
+          in: path
+          description: ID of myitem that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: name
+          in: query
+          description: Name of myitem that needs to be updated
+          schema:
+            type: string
+      responses:
+        '405':
+          description: Invalid input
+
+    delete:
+      tags:
+        - myitem
+      summary: myitemを削除する。
+      description: myitemを削除する。
+      operationId: deletemyitem
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: myitemId
+          in: path
+          description: myitem id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid myitem value
+
+  /myitem/{myitemId}/uploadImage:
+    post:
+      tags:
+        - myitem
+      summary: uploads an image
+      description: ''
+      operationId: uploadFile
+      parameters:
+        - name: myitemId
+          in: path
+          description: ID of myitem to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: additionalMetadata
+          in: query
+          description: Additional Metadata
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+
+components:
+  schemas:
+    myitem:
+      required:
+        - name
+        - photoUrls
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: "item name"
+        photoUrls:
+          type: array
+          items:
+            type: string
+            example: ["/img/myitem01.jpg","/img/myitem02.jpg"]
+    ApiResponse:
+      type: object
+      properties:
+        # apiVersion:
+        #   type: string
+        #   example: "1.0"
+        # code:
+        #   type: integer
+        #   format: int32
+        # type:
+        #   type: string
+        # message:
+        #   type: string
+        data: 
+          type: object
+        
+
+    ApiResponseMyitem:
+      type: object
+      properties:
+        # apiVersion:
+        #   type: string
+        #   example: "1.0"
+        # code:
+        #   type: integer
+        #   format: int32
+        # type:
+        #   type: string
+        # message:
+        #   type: string
+        data: 
+          $ref: '#/components/schemas/myitem'
+        
+    ApiResponseMyitems:
+      type: object
+      properties:
+        # apiVersion:
+        #   type: string
+        #   example: "1.0"
+        # code:
+        #   type: integer
+        #   format: int32
+        # type:
+        #   type: string
+        # message:
+        #   type: string
+        data:
+          items:
+            $ref: '#/components/schemas/myitem'
+
+    ApiResponseError:
+      type: object
+      properties:
+        # apiVersion:
+        #   type: string
+        #   example: "1.0"
+        # code:
+        #   type: integer
+        #   format: int32
+        # type:
+        #   type: string
+        error:
+          type: string
+          example: "some error occurred."
+
+  requestBodies:
+    myitem:
+      description: myitem object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/myitem'
+ 
